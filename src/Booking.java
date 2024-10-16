@@ -1,4 +1,6 @@
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,7 @@ public class Booking {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isWorking;
-    private List otherGuests;
+    private List otherGuests = new ArrayList<>();
 
     public Booking(Room room, Guest guest, LocalDate startDate, LocalDate endDate, boolean isWorking) {
         this.room = room;
@@ -18,8 +20,9 @@ public class Booking {
         this.isWorking = isWorking;
     }
 
-    public Booking(Room room, LocalDate startDate, LocalDate endDate, boolean isWorking, List otherGuests) {
+    public Booking(Room room, Guest guest, LocalDate startDate, LocalDate endDate, boolean isWorking, List otherGuests) {
         this.room = room;
+        this.guest = guest;
         this.startDate = startDate;
         this.endDate = endDate;
         this.isWorking = isWorking;
@@ -72,5 +75,27 @@ public class Booking {
 
     public void setWorking(boolean working) {
         isWorking = working;
+    }
+
+    public int getGuestsCount() {
+        return otherGuests.size() + 1;
+    }
+
+    public int getBookingLength() {
+        LocalDate start = startDate;
+        LocalDate end = endDate;
+        return start.until(end).getDays();
+    }
+
+    public BigDecimal getTotalPrice() {
+        return BigDecimal.valueOf(getBookingLength()).multiply(room.getPrice());
+    }
+
+    public String getFormattedSummary() {
+        return startDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")) + " až " +
+                endDate.format(DateTimeFormatter.ofPattern("YYYY-MM-dd")) + ": " +
+                guest.getFirstName() + " " + guest.getLastName() + " (" +
+                guest.getBirthdate().format(DateTimeFormatter.ofPattern("YYYY-MM-dd")) + ")" +
+                "[" + getGuestsCount() + ", " + (room.isViewOnSea() ? "ano" : "ne") + "] za " + getTotalPrice() + " Kč";
     }
 }
